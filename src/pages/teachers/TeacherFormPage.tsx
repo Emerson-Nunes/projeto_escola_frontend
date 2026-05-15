@@ -179,24 +179,27 @@ export default function TeacherFormPage() {
                 onValueChange={addSubject}
                 placeholder="Adicionar disciplina"
               />
-              {selectedSubjects.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {selectedSubjects.map((s) => (
-                    <Badge key={s.id} variant="secondary" className="flex items-center gap-1 pr-1">
-                      {s.name}
-                      <button
-                        type="button"
-                        onClick={() => removeSubject(s.id)}
-                        className="ml-1 rounded-full hover:bg-muted p-0.5"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">Nenhuma disciplina selecionada</p>
-              )}
+                  <div className="min-h-24 rounded-md border border-border bg-secondary/20 p-3">
+                {selectedSubjects.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedSubjects.map((s) => (
+                      <Badge key={s.id} variant="secondary" className="flex items-center gap-1 pr-1 text-sm py-1">
+                        {s.name}
+                        {s.code && <span className="text-xs opacity-60 ml-1">({s.code})</span>}
+                        <button
+                          type="button"
+                          onClick={() => removeSubject(s.id)}
+                          className="ml-1 rounded-full hover:bg-muted p-0.5"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Nenhuma disciplina selecionada — use o seletor acima para adicionar</p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>

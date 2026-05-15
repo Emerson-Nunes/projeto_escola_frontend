@@ -31,4 +31,9 @@ export const studentsService = {
   async remove(id: string): Promise<void> {
     await api.delete(`/students/${id}`);
   },
+
+  async findMe(): Promise<Student> {
+    const { data } = await api.get<Student>('/students/me');
+    return data;
+  },
 };

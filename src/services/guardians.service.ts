@@ -26,4 +26,9 @@ export const guardiansService = {
   async remove(id: string): Promise<void> {
     await api.delete(`/guardians/${id}`);
   },
+
+  async findMe(): Promise<Guardian & { students: any[] }> {
+    const { data } = await api.get<Guardian & { students: any[] }>('/guardians/me');
+    return data;
+  },
 };

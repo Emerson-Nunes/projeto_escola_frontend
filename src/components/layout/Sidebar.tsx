@@ -15,6 +15,7 @@ import {
   ChevronRight,
   School,
   LogOut,
+  Bell,
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useAuthStore } from '../../stores/auth.store';
@@ -37,6 +38,7 @@ const navItems: NavItem[] = [
   { to: '/grades', label: 'Notas', icon: <ClipboardList className="h-5 w-5" /> },
   { to: '/attendance', label: 'Frequência', icon: <Calendar className="h-5 w-5" /> },
   { to: '/reports', label: 'Relatórios', icon: <FileText className="h-5 w-5" /> },
+  { to: '/notifications', label: 'Notificações', icon: <Bell className="h-5 w-5" />, roles: ['ADMIN', 'PROFESSOR'] },
   { to: '/settings', label: 'Configurações', icon: <Settings className="h-5 w-5" />, roles: ['ADMIN'] },
 ];
 

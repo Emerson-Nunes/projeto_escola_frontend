@@ -26,4 +26,9 @@ export const teachersService = {
   async remove(id: string): Promise<void> {
     await api.delete(`/teachers/${id}`);
   },
+
+  async findMe(): Promise<Teacher> {
+    const { data } = await api.get<Teacher>('/teachers/me');
+    return data;
+  },
 };

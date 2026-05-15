@@ -11,6 +11,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Ca
 import { useToast } from '../../components/ui/Toast';
 import { subjectsService } from '../../services/subjects.service';
 
+function autoCode(name: string): string {
+  return name.trim().replace(/\s+/g, ' ').split(' ').slice(0, 3)
+    .map((w) => w.slice(0, 3).toUpperCase()).join('').slice(0, 6);
+}
+
 const subjectSchema = z.object({
   name: z.string().min(2, 'Nome é obrigatório'),
   code: z.string().min(2, 'Código é obrigatório'),
@@ -43,10 +48,21 @@ export default function SubjectFormPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['subjects'] }),
   });
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SubjectFormData>({
+  const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm<SubjectFormData>({
     resolver: zodResolver(subjectSchema),
-    values: subject ? { name: subject.name, code: subject.code, workload: subject.workload } : undefined,
+    values: subject
+      ? { name: subject.name, code: subject.code || autoCode(subject.name), workload: subject.workload }
+      : undefined,
   });
+
+  const watchedName = watch('name', '');
+
+  // Auto-generate code when name changes (only for new subjects)
+  React.useEffect(() => {
+    if (!isEditing && watchedName.length >= 2) {
+      setValue('code', autoCode(watchedName));
+    }
+  }, [watchedName, isEditing, setValue]);
 
   const onSubmit = async (data: SubjectFormData) => {
     try {
@@ -79,7 +95,17 @@ export default function SubjectFormPage() {
           <CardHeader><CardTitle>Dados da Disciplina</CardTitle></CardHeader>
           <CardContent className="flex flex-col gap-4">
             <Input label="Nome *" placeholder="Matemática" error={errors.name?.message} {...register('name')} />
-            <Input label="Código *" placeholder="MAT-001" error={errors.code?.message} {...register('code')} />
+            <div className="flex flex-col gap-1">
+              <Input
+                label="Código *"
+                placeholder="MAT"
+                error={errors.code?.message}
+                {...register('code')}
+              />
+              <p className="text-xs text-muted-foreground">
+                Gerado automaticamente a partir do nome. Ex: Matemática = MAT, Língua Portuguesa = LINPOR. Você pode editar.
+              </p>
+            </div>
             <Input label="Carga Horária (horas) *" type="number" error={errors.workload?.message} {...register('workload')} />
           </CardContent>
         </Card>

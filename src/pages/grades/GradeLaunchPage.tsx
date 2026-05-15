@@ -46,9 +46,10 @@ export default function GradeLaunchPage() {
 
   // Initialize grades when students load
   useEffect(() => {
-    if (students) {
+    const list = students?.data ?? [];
+    if (list.length > 0 || classRoomId) {
       setGrades(
-        students.map((s: Student) => {
+        list.map((s: Student) => {
           const existing = existingGrades?.find((g) => g.studentId === s.id);
           return {
             studentId: s.id,
@@ -58,7 +59,7 @@ export default function GradeLaunchPage() {
         })
       );
     }
-  }, [students, existingGrades]);
+  }, [students, existingGrades, classRoomId]);
 
   const classroomOptions = classroomsData?.data?.map((c) => ({ value: c.id, label: c.name })) || [];
   const subjectOptions = subjects?.data?.map((s) => ({ value: s.id, label: s.name })) || [];
@@ -99,10 +100,10 @@ export default function GradeLaunchPage() {
     }
   };
 
-  const studentsMap = students?.reduce((acc: Record<string, Student>, s: Student) => {
+  const studentsMap = (students?.data ?? []).reduce((acc: Record<string, Student>, s: Student) => {
     acc[s.id] = s;
     return acc;
-  }, {}) || {};
+  }, {});
 
   return (
     <div className="flex flex-col gap-6">

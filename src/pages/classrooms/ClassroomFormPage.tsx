@@ -16,6 +16,10 @@ const classroomSchema = z.object({
   year: z.coerce.number().min(2000).max(2100),
   shift: z.enum(['MANHA', 'TARDE', 'NOITE']),
   grade: z.coerce.number().min(1).max(3) as z.ZodType<1 | 2 | 3>,
+  startTime: z.string().optional(),
+  breakStartTime: z.string().optional(),
+  breakEndTime: z.string().optional(),
+  endTime: z.string().optional(),
 });
 
 type ClassroomFormData = z.infer<typeof classroomSchema>;
@@ -46,7 +50,16 @@ export default function ClassroomFormPage() {
     resolver: zodResolver(classroomSchema),
     defaultValues: { year: new Date().getFullYear(), shift: 'MANHA' as const, grade: 1 as 1 | 2 | 3, name: '' },
     values: classroom
-      ? { name: classroom.name, year: classroom.year, shift: classroom.shift as 'MANHA' | 'TARDE' | 'NOITE', grade: classroom.grade as 1 | 2 | 3 }
+      ? {
+          name: classroom.name,
+          year: classroom.year,
+          shift: (classroom as any).shift as 'MANHA' | 'TARDE' | 'NOITE',
+          grade: (classroom as any).grade as 1 | 2 | 3,
+          startTime: (classroom as any).startTime || '',
+          breakStartTime: (classroom as any).breakStartTime || '',
+          breakEndTime: (classroom as any).breakEndTime || '',
+          endTime: (classroom as any).endTime || '',
+        }
       : undefined,
   });
 
@@ -79,27 +92,46 @@ export default function ClassroomFormPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Card className="max-w-lg">
-          <CardHeader><CardTitle>Dados da Turma</CardTitle></CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            <Input label="Nome da Turma *" placeholder="9º A" error={errors.name?.message} {...register('name')} />
-            <Input label="Ano Letivo *" type="number" error={errors.year?.message} {...register('year')} />
-            <Select
-              label="Turno *"
-              options={shiftOptions}
-              value={watch('shift')}
-              onValueChange={(v) => setValue('shift', v as 'MANHA' | 'TARDE' | 'NOITE')}
-              error={errors.shift?.message}
-            />
-            <Select
-              label="Série *"
-              options={gradeOptions}
-              value={String(watch('grade'))}
-              onValueChange={(v) => setValue('grade', Number(v) as 1 | 2 | 3)}
-              error={errors.grade?.message}
-            />
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader><CardTitle>Dados da Turma</CardTitle></CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <Input label="Nome da Turma *" placeholder="1º A" error={errors.name?.message} {...register('name')} />
+              <Input label="Ano Letivo *" type="number" error={errors.year?.message} {...register('year')} />
+              <Select
+                label="Turno *"
+                options={shiftOptions}
+                value={watch('shift')}
+                onValueChange={(v) => setValue('shift', v as 'MANHA' | 'TARDE' | 'NOITE')}
+                error={errors.shift?.message}
+              />
+              <Select
+                label="Série *"
+                options={gradeOptions}
+                value={String(watch('grade'))}
+                onValueChange={(v) => setValue('grade', Number(v) as 1 | 2 | 3)}
+                error={errors.grade?.message}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><CardTitle>Horários</CardTitle></CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <div className="grid grid-cols-2 gap-3">
+                <Input label="Início das aulas" type="time" {...register('startTime')} />
+                <Input label="Fim das aulas" type="time" {...register('endTime')} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Input label="Início do intervalo" type="time" {...register('breakStartTime')} />
+                <Input label="Fim do intervalo" type="time" {...register('breakEndTime')} />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Horários são opcionais e utilizados para referência no sistema.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
 
         <div className="mt-6 flex justify-end gap-3">
           <Button variant="outline" type="button" onClick={() => navigate('/classrooms')}>Cancelar</Button>

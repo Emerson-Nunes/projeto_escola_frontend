@@ -31,9 +31,9 @@ export const gradesService = {
     return data;
   },
 
-  async getReportCard(studentId: string, schoolYear: number): Promise<ReportCard> {
-    const { data } = await api.get<ReportCard>(`/grades/report-card/${studentId}`, {
-      params: { schoolYear },
+  async getReportCard(studentId: string, schoolYear?: number): Promise<ReportCard> {
+    const { data } = await api.get<ReportCard>(`/grades/student/${studentId}/reportcard`, {
+      params: schoolYear ? { schoolYear } : {},
     });
     return data;
   },

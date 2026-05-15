@@ -49,6 +49,7 @@ const ReportsPage = lazy(() => import('../pages/reports/ReportsPage'));
 // Profile & Settings
 const ProfilePage = lazy(() => import('../pages/profile/ProfilePage'));
 const SettingsPage = lazy(() => import('../pages/settings/SettingsPage'));
+const NotificationsPage = lazy(() => import('../pages/notifications/NotificationsPage'));
 
 // ErrorBoundary
 interface ErrorBoundaryState { hasError: boolean; error?: Error }
@@ -153,6 +154,9 @@ export function AppRoutes() {
 
               {/* Reports */}
               <Route path="/reports" element={<ReportsPage />} />
+
+              {/* Notifications */}
+              <Route path="/notifications" element={<NotificationsPage />} />
             </Route>
           </Route>
 

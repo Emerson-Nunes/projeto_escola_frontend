@@ -2,9 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Moon, Sun, Bell, ChevronDown, User, LogOut } from 'lucide-react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { useQuery } from '@tanstack/react-query';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuthStore } from '../../stores/auth.store';
 import { authService } from '../../services/auth.service';
+import { notificationsService } from '../../services/notifications.service';
 import { cn } from '../../utils/cn';
 
 const pageTitles: Record<string, string> = {
@@ -19,6 +21,7 @@ const pageTitles: Record<string, string> = {
   '/reports': 'Relatórios',
   '/settings': 'Configurações',
   '/profile': 'Meu Perfil',
+  '/notifications': 'Notificações',
 };
 
 export function Navbar() {
@@ -28,6 +31,12 @@ export function Navbar() {
   const navigate = useNavigate();
   const [notifOpen, setNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
+
+  const { data: myNotifications = [] } = useQuery({
+    queryKey: ['notifications', 'mine'],
+    queryFn: () => notificationsService.findMine(),
+    refetchInterval: 60000,
+  });
 
   const pageTitle = Object.entries(pageTitles).find(([path]) =>
     location.pathname.startsWith(path)
@@ -75,15 +84,31 @@ export function Navbar() {
             title="Notificações"
           >
             <Bell className="h-5 w-5" />
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />
+            {myNotifications.length > 0 && (
+              <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+                {myNotifications.length > 9 ? '9+' : myNotifications.length}
+              </span>
+            )}
           </button>
           {notifOpen && (
-            <div className="absolute right-0 top-full z-50 mt-2 w-72 rounded-md border border-border bg-card shadow-lg">
+            <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-md border border-border bg-card shadow-lg">
               <div className="border-b border-border px-4 py-3">
-                <p className="text-sm font-semibold text-foreground">Notificações</p>
+                <p className="text-sm font-semibold text-foreground">Notificações ({myNotifications.length})</p>
               </div>
-              <div className="p-4 text-center text-sm text-muted-foreground">
-                Nenhuma notificação no momento.
+              <div className="max-h-80 overflow-y-auto">
+                {myNotifications.length === 0 ? (
+                  <div className="p-4 text-center text-sm text-muted-foreground">
+                    Nenhuma notificação no momento.
+                  </div>
+                ) : (
+                  myNotifications.slice(0, 5).map((n) => (
+                    <div key={n.id} className="border-b border-border px-4 py-3 last:border-0">
+                      <p className="text-sm font-medium text-foreground">{n.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.message}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{new Date(n.createdAt).toLocaleString('pt-BR')}</p>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}
