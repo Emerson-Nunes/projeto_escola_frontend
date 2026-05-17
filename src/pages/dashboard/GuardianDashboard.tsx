@@ -102,7 +102,7 @@ export default function GuardianDashboard() {
           </CardHeader>
           <CardContent>
             {subjects.length === 0 ? (
-              <p className="text-center text-muted-foreground py-6">Sem notas lançadas para {currentYear}.</p>
+              <p className="text-center text-muted-foreground py-6">Nenhuma disciplina cadastrada no sistema.</p>
             ) : (
               <ul className="space-y-3">
                 {subjects.map((s: any) => (

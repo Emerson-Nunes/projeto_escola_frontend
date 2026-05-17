@@ -33,7 +33,6 @@ export default function StudentDashboard() {
   }
 
   const subjects = (reportCard as any)?.subjects ?? [];
-  const attendancePct = 0; // attendance data shown separately in Frequência page
 
   return (
     <div className="flex flex-col gap-6">
@@ -46,25 +45,24 @@ export default function StudentDashboard() {
         </p>
       </div>
 
-      {subjects.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center text-muted-foreground">
-            Nenhuma nota lançada ainda para {currentYear}.
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-primary" />
-              Minhas Notas — {currentYear}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-primary" />
+            Minhas Notas — {currentYear}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {subjects.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">Nenhuma disciplina cadastrada no sistema.</p>
+          ) : (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {subjects.map((s: any) => (
                 <div key={s.subject?.id ?? s.subjectId} className="rounded-lg border border-border p-4 bg-card">
                   <p className="font-semibold text-foreground">{s.subject?.name ?? s.subjectName}</p>
+                  {s.subject?.code && (
+                    <p className="text-xs text-muted-foreground">{s.subject.code}</p>
+                  )}
                   <div className="mt-2 flex items-center justify-between">
                     <span className="text-2xl font-bold text-foreground">
                       {s.mediaFinal != null ? Number(s.mediaFinal).toFixed(1) : '—'}
@@ -74,9 +72,9 @@ export default function StudentDashboard() {
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -87,7 +85,7 @@ export default function StudentDashboard() {
         </CardHeader>
         <CardContent>
           {subjects.length === 0 ? (
-            <p className="text-center text-muted-foreground py-6">Sem notas lançadas para {currentYear}.</p>
+            <p className="text-center text-muted-foreground py-6">Sem disciplinas cadastradas.</p>
           ) : (
             <ul className="space-y-2">
               {subjects.map((s: any) => (
