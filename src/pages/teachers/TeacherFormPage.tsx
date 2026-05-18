@@ -14,6 +14,7 @@ import { useTeacher, useCreateTeacher, useUpdateTeacher } from '../../hooks/useT
 import { useToast } from '../../components/ui/Toast';
 import { subjectsService } from '../../services/subjects.service';
 import { isValidCPF, formatCPFInput, isAdult } from '../../utils/cpf';
+import { formatPhoneInput, unformatPhone } from '../../utils/phone';
 
 const teacherSchema = z.object({
   name: z.string().min(2, 'Nome deve ter ao menos 2 caracteres'),
@@ -38,6 +39,7 @@ export default function TeacherFormPage() {
 
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([]);
   const [cpfDisplay, setCpfDisplay] = useState('');
+  const [phoneDisplay, setPhoneDisplay] = useState('');
 
   const { data: teacher } = useTeacher(id || '');
 
@@ -76,9 +78,10 @@ export default function TeacherFormPage() {
     }
   }, [teacher]);
 
-  // Sync CPF display when editing
+  // Sync CPF and phone display when editing
   React.useEffect(() => {
     if (teacher?.cpf) setCpfDisplay(formatCPFInput(teacher.cpf));
+    if (teacher?.phone) setPhoneDisplay(formatPhoneInput(teacher.phone));
   }, [teacher]);
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -157,7 +160,17 @@ export default function TeacherFormPage() {
                 {errors.cpf && <p className="text-xs text-destructive">{errors.cpf.message}</p>}
               </div>
               <Input label="Data de Nascimento *" type="date" error={errors.birthDate?.message} {...register('birthDate')} />
-              <Input label="Telefone *" placeholder="(11) 99999-9999" error={errors.phone?.message} {...register('phone')} />
+              <Input
+                label="Telefone *"
+                value={phoneDisplay}
+                onChange={(e) => {
+                  const formatted = formatPhoneInput(e.target.value);
+                  setPhoneDisplay(formatted);
+                  setValue('phone', unformatPhone(formatted));
+                }}
+                placeholder="(00) 00000-0000"
+                error={errors.phone?.message}
+              />
             </CardContent>
           </Card>
 

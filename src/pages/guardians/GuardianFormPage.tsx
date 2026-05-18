@@ -14,6 +14,7 @@ import { guardiansService } from '../../services/guardians.service';
 import { classroomsService } from '../../services/classrooms.service';
 import { studentsService } from '../../services/students.service';
 import { isValidCPF, formatCPFInput } from '../../utils/cpf';
+import { formatPhoneInput, unformatPhone } from '../../utils/phone';
 
 const guardianSchema = z.object({
   name: z.string().min(2, 'Nome deve ter ao menos 2 caracteres'),
@@ -34,6 +35,7 @@ export default function GuardianFormPage() {
   const queryClient = useQueryClient();
 
   const [cpfDisplay, setCpfDisplay] = useState('');
+  const [phoneDisplay, setPhoneDisplay] = useState('');
   const [classRoomId, setClassRoomId] = useState('');
   const [studentId, setStudentId] = useState('');
 
@@ -73,6 +75,7 @@ export default function GuardianFormPage() {
 
   React.useEffect(() => {
     if (guardian?.cpf) setCpfDisplay(formatCPFInput(guardian.cpf));
+    if (guardian?.phone) setPhoneDisplay(formatPhoneInput(guardian.phone));
     if (guardian?.students?.[0]) setStudentId(guardian.students[0].id);
   }, [guardian]);
 
@@ -155,7 +158,17 @@ export default function GuardianFormPage() {
                 {errors.cpf && <p className="text-xs text-destructive">{errors.cpf.message}</p>}
               </div>
 
-              <Input label="Telefone *" error={errors.phone?.message} {...register('phone')} />
+              <Input
+                label="Telefone *"
+                value={phoneDisplay}
+                onChange={(e) => {
+                  const formatted = formatPhoneInput(e.target.value);
+                  setPhoneDisplay(formatted);
+                  setValue('phone', unformatPhone(formatted));
+                }}
+                placeholder="(00) 00000-0000"
+                error={errors.phone?.message}
+              />
               <Input label="Parentesco *" placeholder="Pai, Mãe, Avô, Avó..." error={errors.relationship?.message} {...register('relationship')} />
             </CardContent>
           </Card>

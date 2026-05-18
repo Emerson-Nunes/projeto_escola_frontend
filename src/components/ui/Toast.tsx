@@ -29,17 +29,17 @@ export function useToast() {
 }
 
 const variantStyles: Record<ToastVariant, string> = {
-  default: 'border-border',
-  success: 'border-green-200 bg-green-50',
-  error: 'border-red-200 bg-red-50',
-  warning: 'border-yellow-200 bg-yellow-50',
+  default: 'border-border bg-card',
+  success: 'border-green-500/30 bg-green-500/10 dark:bg-green-900/20',
+  error: 'border-red-500/30 bg-red-500/10 dark:bg-red-900/20',
+  warning: 'border-yellow-500/30 bg-yellow-500/10 dark:bg-yellow-900/20',
 };
 
 const variantIcons: Record<ToastVariant, React.ReactNode> = {
-  default: <Info className="h-5 w-5 text-blue-500" />,
-  success: <CheckCircle className="h-5 w-5 text-green-500" />,
-  error: <AlertCircle className="h-5 w-5 text-red-500" />,
-  warning: <AlertTriangle className="h-5 w-5 text-yellow-500" />,
+  default: <Info className="h-5 w-5 text-blue-500 dark:text-blue-400" />,
+  success: <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />,
+  error: <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />,
+  warning: <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />,
 };
 
 export function Toaster({ children }: { children?: React.ReactNode }) {
@@ -81,8 +81,7 @@ export function Toaster({ children }: { children?: React.ReactNode }) {
               'pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-lg border p-4 shadow-lg',
               'data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out',
               'data-[state=closed]:fade-out-80 data-[state=open]:slide-in-from-bottom-5',
-              variantStyles[toast.variant || 'default'],
-              'bg-white'
+              variantStyles[toast.variant || 'default']
             )}
             onOpenChange={(open) => {
               if (!open) removeToast(toast.id);

@@ -12,6 +12,7 @@ import { useStudent, useCreateStudent, useUpdateStudent } from '../../hooks/useS
 import { useClassrooms } from '../../hooks/useClassrooms';
 import { useToast } from '../../components/ui/Toast';
 import { isValidCPF, formatCPFInput } from '../../utils/cpf';
+import { formatPhoneInput, unformatPhone } from '../../utils/phone';
 
 function isAtLeast10(dateStr: string): boolean {
   const birth = new Date(dateStr);
@@ -43,6 +44,7 @@ export default function StudentFormPage() {
   const isEditing = !!id;
   const { success, error } = useToast();
   const [cpfDisplay, setCpfDisplay] = useState('');
+  const [phoneDisplay, setPhoneDisplay] = useState('');
 
   const { data: student } = useStudent(id || '');
   const { data: classroomsData } = useClassrooms({ limit: 100 });
@@ -74,6 +76,7 @@ export default function StudentFormPage() {
 
   React.useEffect(() => {
     if (student?.cpf) setCpfDisplay(formatCPFInput(student.cpf));
+    if (student?.phone) setPhoneDisplay(formatPhoneInput(student.phone));
   }, [student]);
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,7 +150,17 @@ export default function StudentFormPage() {
               </div>
 
               <Input label="Data de Nascimento *" type="date" error={errors.birthDate?.message} {...register('birthDate')} />
-              <Input label="Telefone *" placeholder="(11) 99999-9999" error={errors.phone?.message} {...register('phone')} />
+              <Input
+                label="Telefone *"
+                value={phoneDisplay}
+                onChange={(e) => {
+                  const formatted = formatPhoneInput(e.target.value);
+                  setPhoneDisplay(formatted);
+                  setValue('phone', unformatPhone(formatted));
+                }}
+                placeholder="(00) 00000-0000"
+                error={errors.phone?.message}
+              />
               <Input label="Endereço" placeholder="Rua, número, bairro" error={errors.address?.message} {...register('address')} />
             </CardContent>
           </Card>

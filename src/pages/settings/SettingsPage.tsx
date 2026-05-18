@@ -11,6 +11,7 @@ import { useToast } from '../../components/ui/Toast';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { cn } from '../../utils/cn';
 import api from '../../services/api';
+import { formatPhoneInput } from '../../utils/phone';
 
 // ─── Schemas ───────────────────────────────────────────────────────────────────
 
@@ -154,8 +155,9 @@ function AcademicSettingsTab({ config }: { config: any }) {
 function ContactSettingsTab({ config }: { config: any }) {
   const { success, error } = useToast();
   const queryClient = useQueryClient();
+  const [phoneDisplay, setPhoneDisplay] = useState('');
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ContactFormData>({
+  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
     values: config
       ? {
@@ -167,6 +169,10 @@ function ContactSettingsTab({ config }: { config: any }) {
         }
       : undefined,
   });
+
+  React.useEffect(() => {
+    if (config?.phone) setPhoneDisplay(formatPhoneInput(config.phone));
+  }, [config]);
 
   const updateMutation = useMutation({
     mutationFn: async (data: ContactFormData) => {
@@ -203,9 +209,14 @@ function ContactSettingsTab({ config }: { config: any }) {
           />
           <Input
             label="Telefone"
-            placeholder="Ex: (11) 99999-9999"
+            value={phoneDisplay}
+            onChange={(e) => {
+              const formatted = formatPhoneInput(e.target.value);
+              setPhoneDisplay(formatted);
+              setValue('phone', formatted);
+            }}
+            placeholder="(00) 00000-0000"
             error={errors.phone?.message}
-            {...register('phone')}
           />
           <Input
             label="E-mail"

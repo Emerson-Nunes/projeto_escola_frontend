@@ -38,6 +38,7 @@ export default function NotificationsPage() {
   const [showForm, setShowForm] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [expiration, setExpiration] = useState('');
 
   const { data: notifications = [], isLoading } = useQuery({
     queryKey: ['notifications', 'all'],
@@ -45,7 +46,7 @@ export default function NotificationsPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (dto: { title: string; message: string; targetRoles: string[] }) =>
+    mutationFn: (dto: { title: string; message: string; targetRoles: string[]; expiresAt?: string }) =>
       notificationsService.create(dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
@@ -53,6 +54,7 @@ export default function NotificationsPage() {
       setShowForm(false);
       reset();
       setSelectedRoles([]);
+      setExpiration('');
     },
     onError: () => error('Erro ao enviar notificação'),
   });
@@ -71,12 +73,22 @@ export default function NotificationsPage() {
     resolver: zodResolver(schema),
   });
 
+  function getExpiresAt(expiration: string): string | undefined {
+    if (!expiration) return undefined;
+    const now = new Date();
+    if (expiration === '1h') now.setHours(now.getHours() + 1);
+    else if (expiration === '24h') now.setDate(now.getDate() + 1);
+    else if (expiration === '7d') now.setDate(now.getDate() + 7);
+    else if (expiration === '30d') now.setDate(now.getDate() + 30);
+    return now.toISOString();
+  }
+
   const onSubmit = (data: FormData) => {
     if (selectedRoles.length === 0) {
       error('Selecione ao menos um grupo de destinatários');
       return;
     }
-    createMutation.mutate({ ...data, targetRoles: selectedRoles });
+    createMutation.mutate({ ...data, targetRoles: selectedRoles, expiresAt: getExpiresAt(expiration) });
   };
 
   const toggleRole = (role: string) => {
@@ -118,6 +130,22 @@ export default function NotificationsPage() {
                 {errors.message && <p className="text-xs text-destructive">{errors.message.message}</p>}
               </div>
 
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-foreground">Duração</label>
+                <select
+                  value={expiration}
+                  onChange={(e) => setExpiration(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="">Permanente</option>
+                  <option value="1h">1 hora</option>
+                  <option value="24h">24 horas</option>
+                  <option value="7d">7 dias</option>
+                  <option value="30d">30 dias</option>
+                </select>
+                <p className="text-xs text-muted-foreground">A notificação expira automaticamente após este período</p>
+              </div>
+
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-foreground">Destinatários *</label>
                 <div className="flex flex-wrap gap-2">
@@ -139,7 +167,7 @@ export default function NotificationsPage() {
               </div>
 
               <div className="flex justify-end gap-3">
-                <Button variant="outline" type="button" onClick={() => { setShowForm(false); reset(); setSelectedRoles([]); }}>
+                <Button variant="outline" type="button" onClick={() => { setShowForm(false); reset(); setSelectedRoles([]); setExpiration(''); }}>
                   Cancelar
                 </Button>
                 <Button type="submit" loading={isSubmitting || createMutation.isPending}>
@@ -177,6 +205,11 @@ export default function NotificationsPage() {
                     <p className="text-xs text-muted-foreground mt-2">
                       Por {n.senderName} • {new Date(n.createdAt).toLocaleString('pt-BR')}
                     </p>
+                    {n.expiresAt && (
+                      <p className="text-xs text-muted-foreground">
+                        Expira em: {new Date(n.expiresAt).toLocaleString('pt-BR')}
+                      </p>
+                    )}
                   </div>
                 </div>
                 {(user?.role === 'ADMIN' || n.senderUserId === user?.id) && (

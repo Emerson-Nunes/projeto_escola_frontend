@@ -8,6 +8,7 @@ export interface Notification {
   senderUserId: string;
   targetRoles: string;
   createdAt: string;
+  expiresAt?: string;
 }
 
 export const notificationsService = {
@@ -21,7 +22,7 @@ export const notificationsService = {
     return data;
   },
 
-  async create(dto: { title: string; message: string; targetRoles: string[] }): Promise<Notification> {
+  async create(dto: { title: string; message: string; targetRoles: string[]; expiresAt?: string }): Promise<Notification> {
     const { data } = await api.post<Notification>('/notifications', dto);
     return data;
   },
