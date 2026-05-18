@@ -10,6 +10,7 @@ import { reportsService } from '../../services/reports.service';
 import { studentsService } from '../../services/students.service';
 import { classroomsService } from '../../services/classrooms.service';
 import { subjectsService } from '../../services/subjects.service';
+import api from '../../services/api';
 
 export default function ReportsPage() {
   const { error, success } = useToast();
@@ -38,10 +39,19 @@ export default function ReportsPage() {
     queryFn: () => subjectsService.findAll({ limit: 100 }),
   });
 
+  const { data: validYearsData = [] } = useQuery({
+    queryKey: ['grades', 'valid-years'],
+    queryFn: async () => {
+      const { data } = await api.get<number[]>('/grades/valid-years');
+      return data;
+    },
+  });
+
   const studentOptions = studentsData?.data?.map((s) => ({ value: s.id, label: `${s.name} — ${s.enrollmentNumber}` })) || [];
   const classroomOptions = classroomsData?.data?.map((c) => ({ value: c.id, label: c.name })) || [];
   const subjectOptions = subjectsData?.data?.map((s) => ({ value: s.id, label: s.name })) || [];
-  const yearOptions = [currentYear, currentYear - 1, currentYear - 2].map((y) => ({ value: String(y), label: String(y) }));
+  const baseYears = validYearsData.length > 0 ? validYearsData : [currentYear, currentYear - 1, currentYear - 2];
+  const yearOptions = baseYears.map((y) => ({ value: String(y), label: String(y) }));
 
   const setReportLoading = (key: string, val: boolean) =>
     setLoading((prev) => ({ ...prev, [key]: val }));
