@@ -16,6 +16,7 @@ import {
   School,
   LogOut,
   Bell,
+  Phone,
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useAuthStore } from '../../stores/auth.store';
@@ -37,12 +38,17 @@ const navItems: NavItem[] = [
   { to: '/subjects', label: 'Disciplinas', icon: <BookMarked className="h-5 w-5" />, roles: ['ADMIN', 'PROFESSOR'] },
   { to: '/grades', label: 'Notas', icon: <ClipboardList className="h-5 w-5" /> },
   { to: '/attendance', label: 'Frequência', icon: <Calendar className="h-5 w-5" /> },
-  { to: '/reports', label: 'Relatórios', icon: <FileText className="h-5 w-5" /> },
+  { to: '/reports', label: 'Relatórios', icon: <FileText className="h-5 w-5" />, roles: ['ADMIN', 'PROFESSOR'] },
+  { to: '/contact', label: 'Contato', icon: <Phone className="h-5 w-5" /> },
   { to: '/notifications', label: 'Notificações', icon: <Bell className="h-5 w-5" />, roles: ['ADMIN', 'PROFESSOR'] },
   { to: '/settings', label: 'Configurações', icon: <Settings className="h-5 w-5" />, roles: ['ADMIN'] },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+export function Sidebar({ onClose }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
@@ -61,22 +67,30 @@ export function Sidebar() {
     (item) => !item.roles || (user?.role && item.roles.includes(user.role))
   );
 
+  const handleNavClick = () => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      onClose?.();
+    }
+  };
+
   return (
     <aside
       className={cn(
-        'flex flex-col border-r border-border bg-card transition-all duration-300',
-        collapsed ? 'w-16' : 'w-64'
+        'flex flex-col border-r border-border bg-card transition-all duration-300 ease-in-out overflow-hidden',
+        collapsed ? 'w-64 md:w-16' : 'w-64'
       )}
     >
       {/* Logo */}
       <div className="flex h-16 items-center border-b border-border px-4">
         <School className="h-8 w-8 flex-shrink-0 text-primary" />
-        {!collapsed && (
-          <span className="ml-3 text-lg font-bold text-foreground">SisEscolar</span>
-        )}
+        <span className={cn('ml-3 text-lg font-bold text-foreground', collapsed ? 'hidden md:hidden' : '')}>
+          SisEscolar
+        </span>
+        {/* Collapse button — desktop only */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="ml-auto rounded-md p-1 hover:bg-secondary"
+          className="ml-auto hidden md:flex rounded-md p-1 hover:bg-secondary"
+          aria-label={collapsed ? 'Expandir menu' : 'Recolher menu'}
         >
           {collapsed ? (
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -93,6 +107,7 @@ export function Sidebar() {
             <li key={item.to}>
               <NavLink
                 to={item.to}
+                onClick={handleNavClick}
                 className={({ isActive }) =>
                   cn(
                     'flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors',
@@ -104,7 +119,7 @@ export function Sidebar() {
                 title={collapsed ? item.label : undefined}
               >
                 <span className="flex-shrink-0">{item.icon}</span>
-                {!collapsed && <span className="ml-3">{item.label}</span>}
+                <span className={cn('ml-3', collapsed ? 'hidden md:hidden' : '')}>{item.label}</span>
               </NavLink>
             </li>
           ))}
@@ -113,16 +128,14 @@ export function Sidebar() {
 
       {/* User footer */}
       <div className="border-t border-border p-4">
-        <div className={cn('flex items-center', collapsed ? 'justify-center' : 'gap-3')}>
+        <div className={cn('flex items-center', collapsed ? 'md:justify-center' : 'gap-3')}>
           <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white">
             {user?.name?.charAt(0).toUpperCase() || 'U'}
           </div>
-          {!collapsed && (
-            <div className="flex-1 overflow-hidden">
-              <p className="truncate text-sm font-medium text-foreground">{user?.name}</p>
-              <p className="truncate text-xs text-muted-foreground">{user?.role}</p>
-            </div>
-          )}
+          <div className={cn('flex-1 overflow-hidden', collapsed ? 'hidden md:hidden' : '')}>
+            <p className="truncate text-sm font-medium text-foreground">{user?.name}</p>
+            <p className="truncate text-xs text-muted-foreground">{user?.role}</p>
+          </div>
           <button
             onClick={handleLogout}
             className="rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"

@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from '../components/layout/Sidebar';
 import { Navbar } from '../components/layout/Navbar';
-import { Menu } from 'lucide-react';
+import { PageTransition } from '../components/ui/PageTransition';
 
 export function AppLayout() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* Mobile sidebar overlay */}
+      {/* Mobile overlay */}
       {mobileSidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/50 md:hidden"
@@ -17,30 +17,22 @@ export function AppLayout() {
         />
       )}
 
-      {/* Sidebar - desktop always visible, mobile conditional */}
+      {/* Sidebar - desktop always visible, mobile slides in from left */}
       <div
-        className={`
-          fixed inset-y-0 left-0 z-50 md:static md:z-auto
-          transition-transform duration-300
-          ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-        `}
+        className={`fixed inset-y-0 left-0 z-50 md:static md:z-auto transition-transform duration-300 ease-in-out ${
+          mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
       >
-        <Sidebar />
+        <Sidebar onClose={() => setMobileSidebarOpen(false)} />
       </div>
 
       {/* Main content */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="flex items-center border-b border-border md:hidden">
-          <button
-            className="p-4 text-muted-foreground hover:text-foreground"
-            onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-        </div>
-        <Navbar />
-        <main className="flex-1 overflow-y-auto p-6">
-          <Outlet />
+      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+        <Navbar onMenuToggle={() => setMobileSidebarOpen((prev) => !prev)} />
+        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+          <PageTransition>
+            <Outlet />
+          </PageTransition>
         </main>
       </div>
     </div>

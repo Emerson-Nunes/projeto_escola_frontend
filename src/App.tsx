@@ -3,6 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Toaster } from './components/ui/Toast';
+import { GlobalLoaderProvider } from './components/ui/GlobalLoader';
 import { queryClient } from './lib/queryClient';
 import { AppRoutes } from './routes';
 import { useAuthStore } from './stores/auth.store';
@@ -25,14 +26,16 @@ function AuthInitializer() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <ThemeProvider>
-          <Toaster>
-            <AuthInitializer />
-            <AppRoutes />
-          </Toaster>
-        </ThemeProvider>
-      </BrowserRouter>
+      <GlobalLoaderProvider>
+        <BrowserRouter>
+          <ThemeProvider>
+            <Toaster>
+              <AuthInitializer />
+              <AppRoutes />
+            </Toaster>
+          </ThemeProvider>
+        </BrowserRouter>
+      </GlobalLoaderProvider>
     </QueryClientProvider>
   );
 }

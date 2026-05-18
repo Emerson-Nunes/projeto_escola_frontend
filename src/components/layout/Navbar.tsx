@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Moon, Sun, Bell, ChevronDown, User, LogOut } from 'lucide-react';
+import { Moon, Sun, Bell, ChevronDown, User, LogOut, Menu } from 'lucide-react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useQuery } from '@tanstack/react-query';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -17,19 +17,27 @@ const pageTitles: Record<string, string> = {
   '/classrooms': 'Turmas',
   '/subjects': 'Disciplinas',
   '/grades': 'Notas',
+  '/grades/report-card': 'Boletim',
   '/attendance': 'Frequência',
+  '/attendance/report': 'Relatório de Frequência',
   '/reports': 'Relatórios',
   '/settings': 'Configurações',
   '/profile': 'Meu Perfil',
   '/notifications': 'Notificações',
+  '/contact': 'Contato',
 };
 
-export function Navbar() {
+interface NavbarProps {
+  onMenuToggle?: () => void;
+}
+
+export function Navbar({ onMenuToggle }: NavbarProps) {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuthStore();
   const location = useLocation();
   const navigate = useNavigate();
   const [notifOpen, setNotifOpen] = useState(false);
+  const [seenCount, setSeenCount] = useState(0);
   const notifRef = useRef<HTMLDivElement>(null);
 
   const { data: myNotifications = [] } = useQuery({
@@ -62,8 +70,26 @@ export function Navbar() {
     navigate('/login');
   };
 
+  const handleBellClick = () => {
+    setNotifOpen((prev) => {
+      if (!prev) setSeenCount(myNotifications.length);
+      return !prev;
+    });
+  };
+
+  const unreadCount = Math.max(0, myNotifications.length - seenCount);
+
   return (
-    <header className="flex h-16 items-center border-b border-border bg-card px-6">
+    <header className="flex h-16 items-center border-b border-border bg-card px-4 md:px-6">
+      {onMenuToggle && (
+        <button
+          onClick={onMenuToggle}
+          className="mr-3 rounded-md p-2 text-muted-foreground hover:bg-secondary hover:text-foreground md:hidden"
+          aria-label="Abrir menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+      )}
       <h1 className="text-xl font-semibold text-foreground">{pageTitle}</h1>
 
       <div className="ml-auto flex items-center gap-3">
@@ -79,14 +105,14 @@ export function Navbar() {
         {/* Notifications */}
         <div ref={notifRef} className="relative">
           <button
-            onClick={() => setNotifOpen((prev) => !prev)}
+            onClick={handleBellClick}
             className="relative rounded-md p-2 text-muted-foreground hover:bg-secondary hover:text-foreground"
             title="Notificações"
           >
             <Bell className="h-5 w-5" />
-            {myNotifications.length > 0 && (
+            {unreadCount > 0 && (
               <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
-                {myNotifications.length > 9 ? '9+' : myNotifications.length}
+                {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
           </button>
