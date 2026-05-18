@@ -25,6 +25,14 @@ export const reportsService = {
     return data;
   },
 
+  async downloadStudentAttendance(studentId: string, schoolYear?: number): Promise<Blob> {
+    const { data } = await api.get(`/reports/student/${studentId}/attendance`, {
+      params: schoolYear ? { schoolYear } : {},
+      responseType: 'blob',
+    });
+    return data;
+  },
+
   async downloadAttendanceSheet(classRoomId: string, subjectId: string, startDate: string, endDate: string): Promise<Blob> {
     const { data } = await api.get('/reports/attendance-sheet', {
       params: { classRoomId, subjectId, startDate, endDate },

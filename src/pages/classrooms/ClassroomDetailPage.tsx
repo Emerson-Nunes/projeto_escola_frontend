@@ -75,7 +75,7 @@ export default function ClassroomDetailPage() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Total de Alunos</p>
-              <p className="text-sm font-medium">{students?.length || 0}</p>
+              <p className="text-sm font-medium">{students?.data?.length || 0}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Status</p>
@@ -100,7 +100,7 @@ export default function ClassroomDetailPage() {
           <CardContent>
             {studentsLoading ? (
               <Skeleton className="h-32 w-full" />
-            ) : students && students.length > 0 ? (
+            ) : students?.data && students.data.length > 0 ? (
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -111,7 +111,7 @@ export default function ClassroomDetailPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {students.map((s) => (
+                  {students.data.map((s) => (
                     <TableRow key={s.id}>
                       <TableCell className="font-medium">{s.name}</TableCell>
                       <TableCell>{s.enrollmentNumber}</TableCell>

@@ -51,6 +51,9 @@ const ProfilePage = lazy(() => import('../pages/profile/ProfilePage'));
 const SettingsPage = lazy(() => import('../pages/settings/SettingsPage'));
 const NotificationsPage = lazy(() => import('../pages/notifications/NotificationsPage'));
 
+// Contact
+const ContactPage = lazy(() => import('../pages/contact/ContactPage'));
+
 // ErrorBoundary
 interface ErrorBoundaryState { hasError: boolean; error?: Error }
 class PageErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryState> {
@@ -157,6 +160,9 @@ export function AppRoutes() {
 
               {/* Notifications */}
               <Route path="/notifications" element={<NotificationsPage />} />
+
+              {/* Contact */}
+              <Route path="/contact" element={<ContactPage />} />
             </Route>
           </Route>
 

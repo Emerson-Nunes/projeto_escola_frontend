@@ -25,8 +25,8 @@ export interface CreateStudentDto {
   cpf: string;
   birthDate: string;
   phone: string;
-  address: string;
-  enrollmentNumber: string;
+  address?: string;
+  enrollmentNumber?: string;
   classRoomId: string;
   guardianId?: string;
 }

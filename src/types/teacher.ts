@@ -21,7 +21,7 @@ export interface CreateTeacherDto {
   cpf: string;
   birthDate: string;
   phone: string;
-  address: string;
+  address?: string;
   registrationNumber: string;
 }
 
